@@ -1,0 +1,97 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap');
+
+:root {
+  /* Colors */
+  --bg:           #F5F3EF;
+  --surface:      #FFFFFF;
+  --surface-2:    #EFECE7;
+  --surface-3:    #E8E4DC;
+  --border:       #DDD8CF;
+  --border-2:     #C9C3B8;
+  --text-1:       #18160F;
+  --text-2:       #56504A;
+  --text-3:       #8A837A;
+
+  --accent:       #2563EB;
+  --accent-h:     #1D4ED8;
+  --accent-bg:    #EFF6FF;
+  --accent-border:#BFDBFE;
+
+  --green:        #16A34A;
+  --green-bg:     #F0FDF4;
+  --green-border: #BBF7D0;
+
+  --amber:        #B45309;
+  --amber-bg:     #FFFBEB;
+  --amber-border: #FDE68A;
+
+  --red:          #DC2626;
+  --red-bg:       #FEF2F2;
+  --red-border:   #FECACA;
+
+  --purple:       #7C3AED;
+  --purple-bg:    #F5F3FF;
+  --purple-border:#DDD6FE;
+
+  --orange:       #C2410C;
+  --orange-bg:    #FFF7ED;
+  --orange-border:#FED7AA;
+
+  --pink:         #BE185D;
+  --pink-bg:      #FDF2F8;
+  --pink-border:  #FBCFE8;
+
+  /* Typography */
+  --font: 'Sora', -apple-system, system-ui, sans-serif;
+  --font-display: 'DM Serif Display', Georgia, serif;
+  --font-mono: 'SF Mono', 'Fira Code', monospace;
+
+  /* Radii */
+  --r-sm:  6px;
+  --r:     10px;
+  --r-lg:  16px;
+  --r-xl:  22px;
+
+  /* Shadows */
+  --sh-sm: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --sh:    0 4px 12px rgba(0,0,0,.07), 0 2px 4px rgba(0,0,0,.04);
+  --sh-lg: 0 12px 36px rgba(0,0,0,.10), 0 4px 12px rgba(0,0,0,.05);
+
+  /* Transitions */
+  --t: .18s cubic-bezier(.4,0,.2,1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  -webkit-font-smoothing: antialiased;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text-1);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+::-webkit-scrollbar          { width: 5px; height: 5px; }
+::-webkit-scrollbar-track    { background: transparent; }
+::-webkit-scrollbar-thumb    { background: var(--border-2); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-3); }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}
+
+@keyframes fadeUp   { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+@keyframes fadeIn   { from { opacity:0; } to { opacity:1; } }
+@keyframes spin     { to { transform:rotate(360deg); } }
+@keyframes pulse    { 0%,100% { opacity:1; } 50% { opacity:.45; } }
+
+.fade-up  { animation: fadeUp  .35s ease both; }
+.fade-in  { animation: fadeIn  .25s ease both; }
+.spin     { animation: spin     .75s linear infinite; }

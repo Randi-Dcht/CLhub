@@ -1,0 +1,73 @@
+# ──────────────────────────────────────────────────────────────────
+#  Exemple de fichier changelog pour ChangeLog Hub
+#  Nommez ce fichier avec "changelog" dans le nom :
+#    mon-app-changelog.yml  ✓
+#    changelog.yml          ✓
+#    CHANGELOG.yaml         ✓
+# ──────────────────────────────────────────────────────────────────
+
+name: Mon Application
+description: Application exemple pour démontrer le format ChangeLog Hub
+repository: https://github.com/moncompte/mon-app   # optionnel
+
+versions:
+  - version: "2.1.0"
+    date: "2024-03-15"
+    changes:
+      - type: added
+        description: Authentification OAuth 2.0 avec support Google et GitHub
+      - type: added
+        description: Tableau de bord avec graphiques interactifs en temps réel
+      - type: changed
+        description: Performances API améliorées — temps de réponse réduit de 40 %
+      - type: fixed
+        description: Affichage corrigé sur Safari mobile pour les formulaires multi-étapes
+
+  - version: "2.0.0"
+    date: "2024-01-20"
+    changes:
+      - type: breaking
+        description: "Refonte complète de l'API REST — tous les endpoints v1 sont dépréciés (voir guide de migration)"
+      - type: added
+        description: Support complet de TypeScript avec types stricts exportés
+      - type: added
+        description: Mode sombre automatique basé sur les préférences système
+      - type: security
+        description: Correction d'une vulnérabilité XSS dans le rendu Markdown (CVE-2024-0001)
+      - type: removed
+        description: Abandon du support Node.js < 18
+
+  - version: "1.5.2"
+    date: "2023-11-10"
+    changes:
+      - type: fixed
+        description: Crash au démarrage sur Windows avec des chemins contenant des espaces
+      - type: fixed
+        description: Fuite mémoire dans le service WebSocket sur connexions longues
+      - type: deprecated
+        description: "La méthode legacyAuth() sera supprimée en v2.0 — utiliser auth() à la place"
+
+  - version: "1.5.0"
+    date: "2023-10-05"
+    changes:
+      - type: added
+        description: Intégration webhooks Slack et Discord
+      - type: added
+        description: Export des données au format CSV et Excel
+      - type: changed
+        description: "Mise à jour des dépendances majeures : React 18, Next.js 14"
+
+upcoming:   # ← section optionnelle : fonctionnalités planifiées
+  - title: Internationalisation complète
+    description: Support de 12 nouvelles langues avec détection automatique de la locale utilisateur
+    priority: high
+    milestone: v2.2.0
+
+  - title: Mode hors ligne / PWA
+    description: Synchronisation des données en arrière-plan, support PWA complet avec service worker
+    priority: medium
+    milestone: v2.3.0
+
+  - title: Intégration CI/CD automatique
+    description: Génération automatique du changelog depuis les commits conventionnels (Conventional Commits)
+    priority: low
