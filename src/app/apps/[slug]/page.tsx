@@ -1,9 +1,8 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import Link from 'next/link'
-import { loadConfig } from '@/lib/config'
 import { ChangelogFile, VersionEntry, ChangeEntry, FutureFeature } from '@/types'
 import styles from './app.module.css'
 import {
@@ -152,7 +151,6 @@ function FeatureCard({ f, index }: { f: FutureFeature; index: number }) {
 
 /* ─── Page ─── */
 export default function AppPage() {
-  const router = useRouter()
   const params = useParams()
   const slug = params?.slug as string
 
@@ -161,16 +159,11 @@ export default function AppPage() {
   const [error, setError] = useState('')
 
   const load = useCallback(async () => {
-    const cfg = loadConfig()
-    if (!cfg) { router.push('/'); return }
     setLoading(true); setError('')
     try {
-      const res = await fetch('/api/changelogs', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(cfg),
-      })
+      const res = await fetch('/api/changelogs')
       const data = await res.json()
+      if (res.status === 404) { setError('Aucun dépôt configuré'); return }
       if (!res.ok) throw new Error(data.error)
       const found = (data.changelogs as ChangelogFile[]).find(c => c.slug === slug)
       if (!found) setError(`Application "${slug}" introuvable`)
@@ -178,7 +171,7 @@ export default function AppPage() {
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Erreur')
     } finally { setLoading(false) }
-  }, [slug, router])
+  }, [slug])
 
   useEffect(() => { load() }, [load])
 

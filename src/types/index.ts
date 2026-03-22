@@ -9,6 +9,11 @@ export interface RepositoryConfig {
   isPrivate: boolean
 }
 
+export interface AppConfig {
+  repo: RepositoryConfig | null
+  updatedAt: string | null
+}
+
 export type ChangeType =
   | 'added'
   | 'changed'
@@ -47,8 +52,6 @@ export interface ChangelogFile {
   _lastFetched?: string
 }
 
-export interface RepoFile {
-  name: string
-  path: string
-  type: 'file' | 'dir'
+export interface SessionData {
+  isAdmin: boolean
 }

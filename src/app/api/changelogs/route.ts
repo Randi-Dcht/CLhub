@@ -1,21 +1,21 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { RepositoryConfig } from '@/types'
+import { NextResponse } from 'next/server'
+import { readAppConfig } from '@/lib/store'
 import { fetchGitHubChangelogs } from '@/lib/github'
 import { fetchGitLabChangelogs } from '@/lib/gitlab'
 
-export async function POST(req: NextRequest) {
+export async function GET() {
+  const cfg = readAppConfig()
+  if (!cfg.repo) {
+    return NextResponse.json({ error: 'Aucun dépôt configuré' }, { status: 404 })
+  }
   try {
-    const config = (await req.json()) as RepositoryConfig
-    if (!config.repoUrl) {
-      return NextResponse.json({ error: "L'URL est requise" }, { status: 400 })
-    }
-    const changelogs = config.provider === 'gitlab'
-      ? await fetchGitLabChangelogs(config)
-      : await fetchGitHubChangelogs(config)
+    const changelogs = cfg.repo.provider === 'gitlab'
+      ? await fetchGitLabChangelogs(cfg.repo)
+      : await fetchGitHubChangelogs(cfg.repo)
     return NextResponse.json({ changelogs, count: changelogs.length })
   } catch (err) {
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Erreur inconnue' },
+      { error: err instanceof Error ? err.message : 'Erreur' },
       { status: 500 }
     )
   }
