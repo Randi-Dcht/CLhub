@@ -9,8 +9,13 @@ export interface RepositoryConfig {
   isPrivate: boolean
 }
 
+export interface AppSettings {
+  siteName: string
+}
+
 export interface AppConfig {
   repo: RepositoryConfig | null
+  settings: AppSettings
   updatedAt: string | null
 }
 

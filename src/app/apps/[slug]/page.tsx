@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { ChangelogFile, VersionEntry, ChangeEntry, FutureFeature } from '@/types'
 import styles from './app.module.css'
+import { useSiteName } from '@/hooks/useSiteName'
 import {
   BookOpen, ArrowLeft, Tag, Calendar, Package,
   Plus, Wrench, AlertTriangle, Trash2, Shield,
@@ -153,6 +154,7 @@ function FeatureCard({ f, index }: { f: FutureFeature; index: number }) {
 export default function AppPage() {
   const params = useParams()
   const slug = params?.slug as string
+  const siteName = useSiteName()
 
   const [changelog, setChangelog] = useState<ChangelogFile | null>(null)
   const [loading, setLoading] = useState(true)
@@ -210,8 +212,9 @@ export default function AppPage() {
             <span className={styles.navSep}>/</span>
             <span className={styles.navCurrent}>{changelog.name}</span>
           </div>
-          <Link href="/apps" className={styles.navLogo}>
+          <Link href="/apps" className={styles.navBrandSmall}>
             <BookOpen size={17} strokeWidth={1.5} />
+            <span>{siteName}</span>
           </Link>
         </div>
       </nav>

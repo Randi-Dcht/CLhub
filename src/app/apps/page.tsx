@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { ChangelogFile } from '@/types'
+import { useSiteName } from '@/hooks/useSiteName'
 import styles from './apps.module.css'
 import {
   BookOpen, RefreshCw, Search, Package,
@@ -18,6 +19,7 @@ function relDate(d: string) {
 }
 
 export default function AppsPage() {
+  const siteName = useSiteName()
   const [all, setAll] = useState<ChangelogFile[]>([])
   const [filtered, setFiltered] = useState<ChangelogFile[]>([])
   const [search, setSearch] = useState('')
@@ -54,18 +56,17 @@ export default function AppsPage() {
   if (loading) return (
     <div className={styles.center}>
       <Loader2 size={26} className="spin" style={{ color: 'var(--accent)' }} />
-      <p>Chargement des changelogs…</p>
+      <p>Chargement…</p>
     </div>
   )
 
   return (
     <div className={styles.page}>
-      {/* Nav */}
       <nav className={styles.nav}>
         <div className={styles.navInner}>
           <Link href="/apps" className={styles.brand}>
             <BookOpen size={19} strokeWidth={1.5} />
-            <span>ChangeLog Hub</span>
+            <span>{siteName}</span>
           </Link>
           <div className={styles.navRight}>
             <button className={styles.iconBtn} title="Rafraîchir"
@@ -73,23 +74,20 @@ export default function AppsPage() {
               <RefreshCw size={15} className={refreshing ? 'spin' : ''} />
             </button>
             <Link href="/admin/login" className={styles.adminLink} title="Administration">
-              <ShieldCheck size={15} />
-              <span>Admin</span>
+              <ShieldCheck size={15} /><span>Admin</span>
             </Link>
           </div>
         </div>
       </nav>
 
       <main className={styles.main}>
-        {/* No repo configured */}
         {noRepo ? (
           <div className={styles.noRepoWrap}>
             <div className={styles.noRepoIcon}><BookOpen size={36} strokeWidth={1} /></div>
             <h2 className={styles.noRepoTitle}>Aucun dépôt configuré</h2>
             <p className={styles.noRepoSub}>Un administrateur doit connecter un dépôt pour afficher les changelogs.</p>
             <Link href="/admin/login" className={styles.adminCta}>
-              <ShieldCheck size={15} />
-              <span>Accès administrateur</span>
+              <ShieldCheck size={15} /><span>Accès administrateur</span>
             </Link>
           </div>
         ) : (
@@ -108,9 +106,7 @@ export default function AppsPage() {
               </div>
             </div>
 
-            {error && (
-              <div className={styles.errorBox}><AlertCircle size={15} /><span>{error}</span></div>
-            )}
+            {error && <div className={styles.errorBox}><AlertCircle size={15}/><span>{error}</span></div>}
 
             {filtered.length === 0 && !error ? (
               <div className={styles.empty}>
@@ -124,7 +120,7 @@ export default function AppsPage() {
                     style={{ animationDelay: `${i * .04}s` }}>
                     <div className={styles.cardTop}>
                       <div className={styles.appIcon}>{cl.name[0].toUpperCase()}</div>
-                      <div className={styles.cardArrow}><ArrowUpRight size={15} /></div>
+                      <div className={styles.cardArrow}><ArrowUpRight size={15}/></div>
                     </div>
                     <div className={styles.cardMid}>
                       <h2 className={styles.appName}>{cl.name}</h2>
@@ -133,18 +129,16 @@ export default function AppsPage() {
                     <div className={styles.cardFoot}>
                       {cl.versions[0]?.version && (
                         <span className={styles.badge} data-color="green">
-                          <Tag size={10} />v{cl.versions[0].version}
+                          <Tag size={10}/>v{cl.versions[0].version}
                         </span>
                       )}
                       {cl.versions[0]?.date && (
                         <span className={styles.badge} data-color="neutral">
-                          <Clock size={10} />{relDate(cl.versions[0].date)}
+                          <Clock size={10}/>{relDate(cl.versions[0].date)}
                         </span>
                       )}
-                      <span className={styles.vcount}>
-                        {cl.versions.length} version{cl.versions.length !== 1 ? 's' : ''}
-                      </span>
-                      <ChevronRight size={13} className={styles.chevron} />
+                      <span className={styles.vcount}>{cl.versions.length} version{cl.versions.length !== 1 ? 's' : ''}</span>
+                      <ChevronRight size={13} className={styles.chevron}/>
                     </div>
                   </Link>
                 ))}
