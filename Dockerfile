@@ -2,19 +2,13 @@
 FROM node:20-alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
-
-# Copy package files — lock file is optional
 COPY package.json package-lock.json* ./
-
-# Use npm install (works with or without lock file)
-# If lock file exists and is valid, it will be respected
 RUN npm install --no-audit --no-fund
 
 # ── Stage 2: builder ───────────────────────────────────────────
 FROM node:20-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/package-lock.json ./package-lock.json
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
@@ -31,6 +25,7 @@ ENV HOSTNAME=0.0.0.0
 RUN addgroup --system --gid 1001 nodejs \
  && adduser  --system --uid 1001 nextjs
 
+# public/ exists in the repo (may be empty but must exist)
 COPY --from=builder /app/public ./public
 
 RUN mkdir -p .next && chown nextjs:nodejs .next
