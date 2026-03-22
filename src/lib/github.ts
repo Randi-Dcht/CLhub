@@ -60,7 +60,7 @@ export async function fetchGitHubChangelogs(config: RepositoryConfig): Promise<C
 
   // Try provided branch, then main, then master
   const branches = [config.branch || 'main', 'main', 'master'].filter(Boolean)
-  const uniqueBranches = [...new Set(branches)]
+  const uniqueBranches = branches.filter((b, i, arr) => arr.indexOf(b) === i)
 
   let files: Array<{ name: string; path: string }> = []
   let usedBranch = uniqueBranches[0]
