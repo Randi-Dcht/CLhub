@@ -15,20 +15,33 @@ export async function GET(req: NextRequest) {
   const res = NextResponse.json({})
   if (!(await isAdmin(req, res))) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
   const cfg = readAppConfig()
-  if (cfg.repo?.token) cfg.repo = { ...cfg.repo, token: '••••••••' }
-  return NextResponse.json(cfg)
+  // Redact token before sending to client
+  const safe = cfg.repo ? { ...cfg.repo, token: cfg.repo.token ? '••••••••' : undefined } : null
+  return NextResponse.json({ ...cfg, repo: safe })
 }
 
 export async function POST(req: NextRequest) {
   const res = NextResponse.json({})
   if (!(await isAdmin(req, res))) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+
   const body = (await req.json()) as { repo: RepositoryConfig }
-  if (!body.repo?.repoUrl) return NextResponse.json({ error: "L'URL du dépôt est requise" }, { status: 400 })
+  const incoming = body.repo
+  if (!incoming?.repoUrl) return NextResponse.json({ error: "L'URL du dépôt est requise" }, { status: 400 })
+
+  // If token field is the redacted placeholder, restore the real token from storage
+  const existing = readAppConfig()
+  const realToken =
+    incoming.token === '••••••••' || !incoming.token
+      ? existing.repo?.token
+      : incoming.token
+
+  const repo: RepositoryConfig = { ...incoming, token: realToken }
+
   try {
-    const info = body.repo.provider === 'gitlab'
-      ? await validateGitLab(body.repo)
-      : await validateGitHub(body.repo)
-    const saved = writeRepo(body.repo)
+    const info = repo.provider === 'gitlab'
+      ? await validateGitLab(repo)
+      : await validateGitHub(repo)
+    const saved = writeRepo(repo)
     return NextResponse.json({ ok: true, info, updatedAt: saved.updatedAt })
   } catch (err) {
     return NextResponse.json({ error: err instanceof Error ? err.message : 'Erreur' }, { status: 400 })

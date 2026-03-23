@@ -44,16 +44,22 @@ export async function fetchGitLabChangelogs(config: RepositoryConfig): Promise<C
   const base = glBase(config.repoUrl)
   const projectPath = encodeURIComponent(`${owner}/${repo}`)
 
+  console.log(`[gitlab] fetchChangelogs for ${owner}/${repo}`)
+
   const res = await fetch(
     `${base}/projects/${projectPath}/repository/tree?recursive=true&per_page=100`,
     { headers: headers(config.token) }
   )
-  if (!res.ok) throw new Error(`GitLab tree: ${res.status}`)
+  if (!res.ok) {
+    const body = await res.text().catch(() => '')
+    throw new Error(`GitLab tree ${res.status}: ${body.slice(0, 120)}`)
+  }
 
   const tree = await res.json() as Array<{ name: string; path: string; type: string }>
   const changelogFiles = tree.filter(f => f.type === 'blob' && isChangelogFile(f.name))
+  console.log(`[gitlab] changelog files: ${changelogFiles.map(f => f.path).join(', ') || 'NONE'}`)
 
-  const branch = config.branch || 'main'
+  const branch = config.branch?.trim() || 'main'
   const results: ChangelogFile[] = []
 
   for (const file of changelogFiles) {
@@ -63,12 +69,18 @@ export async function fetchGitLabChangelogs(config: RepositoryConfig): Promise<C
         `${base}/projects/${projectPath}/repository/files/${encodedPath}/raw?ref=${branch}`,
         { headers: headers(config.token) }
       )
-      if (!fRes.ok) continue
+      if (!fRes.ok) {
+        console.warn(`[gitlab] cannot fetch ${file.path}: ${fRes.status}`)
+        continue
+      }
       const content = await fRes.text()
       const parsed = parseChangelogContent(content, file.path)
-      if (parsed) results.push(parsed)
+      if (parsed) {
+        console.log(`[gitlab] parsed: ${parsed.name} (${parsed.versions.length} versions)`)
+        results.push(parsed)
+      }
     } catch (e) {
-      console.warn(`Skip ${file.path}:`, e)
+      console.warn(`[gitlab] skip ${file.path}:`, e)
     }
   }
 

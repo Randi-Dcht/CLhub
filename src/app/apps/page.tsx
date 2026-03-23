@@ -35,11 +35,11 @@ export default function AppsPage() {
       const res = await fetch('/api/changelogs')
       const data = await res.json()
       if (res.status === 404) { setNoRepo(true); return }
-      if (!res.ok) throw new Error(data.error)
+      if (!res.ok) { setError(data.error ?? 'Erreur inconnue'); return }
       setAll(data.changelogs)
       setFiltered(data.changelogs)
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Erreur')
+      setError(e instanceof Error ? e.message : 'Erreur réseau')
     } finally { setLoading(false); setRefreshing(false) }
   }, [])
 
@@ -90,6 +90,15 @@ export default function AppsPage() {
               <ShieldCheck size={15} /><span>Accès administrateur</span>
             </Link>
           </div>
+        ) : error ? (
+          <div className={styles.noRepoWrap}>
+            <AlertCircle size={38} strokeWidth={1} style={{ color: 'var(--red)' }} />
+            <h2 className={styles.noRepoTitle}>Erreur de chargement</h2>
+            <p className={styles.noRepoSub}>{error}</p>
+            <button className={styles.adminCta} onClick={() => load(true)}>
+              <RefreshCw size={15} /><span>Réessayer</span>
+            </button>
+          </div>
         ) : (
           <>
             <div className={styles.topRow}>
@@ -106,12 +115,15 @@ export default function AppsPage() {
               </div>
             </div>
 
-            {error && <div className={styles.errorBox}><AlertCircle size={15}/><span>{error}</span></div>}
-
-            {filtered.length === 0 && !error ? (
+            {filtered.length === 0 ? (
               <div className={styles.empty}>
                 <Package size={38} strokeWidth={1} />
-                <p>{search ? 'Aucun résultat' : 'Aucun changelog trouvé'}</p>
+                <p>{search ? 'Aucun résultat' : 'Aucun changelog trouvé — vérifiez que vos fichiers contiennent "changelog" dans leur nom'}</p>
+                {!search && (
+                  <p style={{ fontSize: '.8rem', color: 'var(--text-3)', marginTop: 8 }}>
+                    Exemples valides&nbsp;: <code>app-changelog.yml</code>, <code>CHANGELOG.yaml</code>, <code>my-app-changelog.json</code>
+                  </p>
+                )}
               </div>
             ) : (
               <div className={styles.grid}>
