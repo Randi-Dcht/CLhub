@@ -299,3 +299,12 @@
 }
 .navBrandSmall svg { color: var(--accent); }
 .navBrandSmall:hover { color: var(--text-1); }
+
+/* Nav actions (RSS + subscribe) */
+.navActions { display: flex; align-items: center; gap: 8px; }
+.rssLink {
+  width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+  border: 1.5px solid var(--border); background: var(--surface);
+  border-radius: var(--r); color: var(--text-2); text-decoration: none; transition: all var(--t);
+}
+.rssLink:hover { border-color: rgba(234,88,12,.3); color: #ea580c; background: #fff7ed; }

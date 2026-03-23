@@ -5,13 +5,14 @@ import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { ChangelogFile, VersionEntry, ChangeEntry, FutureFeature } from '@/types'
 import styles from './app.module.css'
+import { SubscribeButton } from '@/components/SubscribeModal'
 import { useSiteName } from '@/hooks/useSiteName'
 import {
   BookOpen, ArrowLeft, Tag, Calendar, Package,
   Plus, Wrench, AlertTriangle, Trash2, Shield,
   Zap, RefreshCw, ChevronDown, ChevronUp, Clock,
   Rocket, Star, Loader2, AlertCircle, ExternalLink,
-  TrendingUp
+  TrendingUp, Rss
 } from 'lucide-react'
 import { format, formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
@@ -216,6 +217,17 @@ export default function AppPage() {
             <BookOpen size={17} strokeWidth={1.5} />
             <span>{siteName}</span>
           </Link>
+          <div className={styles.navActions}>
+            {changelog && (
+              <>
+                <a href={`/apps/${changelog.slug}/rss.xml`} target="_blank"
+                  rel="noopener noreferrer" className={styles.rssLink} title="Flux RSS">
+                  <Rss size={14} />
+                </a>
+                <SubscribeButton slug={changelog.slug} appName={changelog.name} />
+              </>
+            )}
+          </div>
         </div>
       </nav>
 

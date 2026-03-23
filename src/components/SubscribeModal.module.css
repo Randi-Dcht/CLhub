@@ -1,0 +1,103 @@
+.triggerBtn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 14px; background: var(--surface);
+  border: 1.5px solid var(--border); border-radius: var(--r);
+  font-size: .8125rem; font-weight: 500; color: var(--text-2);
+  cursor: pointer; transition: all var(--t); font-family: var(--font);
+}
+.triggerBtn:hover {
+  border-color: var(--accent-border); color: var(--accent); background: var(--accent-bg);
+}
+
+.overlay {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(24,22,15,.35); backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+  animation: fadeIn .2s ease both;
+}
+
+.modal {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: var(--r-xl); width: 100%; max-width: 420px;
+  box-shadow: var(--sh-lg); animation: fadeUp .25s ease both;
+  overflow: hidden;
+}
+
+.modalHead {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px; border-bottom: 1.5px solid var(--border);
+  background: var(--surface-2);
+}
+.modalHeadLeft {
+  display: flex; align-items: center; gap: 8px;
+  font-weight: 600; font-size: .9rem; color: var(--text-1);
+}
+.closeBtn {
+  background: none; border: none; cursor: pointer; color: var(--text-3);
+  display: flex; align-items: center; padding: 4px; border-radius: var(--r-sm);
+  transition: color var(--t);
+}
+.closeBtn:hover { color: var(--text-1); }
+
+.modalBody { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+.label { font-size: .8rem; font-weight: 600; color: var(--text-2); text-transform: uppercase; letter-spacing: .06em; }
+
+.inputWrap { position: relative; }
+.inputIcon {
+  position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+  color: var(--text-3); pointer-events: none;
+}
+.input {
+  width: 100%; padding: 10px 13px 10px 36px;
+  border: 1.5px solid var(--border); background: var(--surface);
+  border-radius: var(--r); font-size: .9375rem;
+  color: var(--text-1); font-family: var(--font);
+  transition: border-color var(--t), box-shadow var(--t); outline: none;
+}
+.input::placeholder { color: var(--text-3); }
+.input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
+
+.radioGroup { display: flex; flex-direction: column; gap: 8px; }
+.radioLabel {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 11px 14px; border: 1.5px solid var(--border);
+  border-radius: var(--r); cursor: pointer; transition: all var(--t);
+  font-size: .875rem; color: var(--text-2);
+}
+.radioLabel input[type="radio"] { margin-top: 2px; accent-color: var(--accent); flex-shrink: 0; }
+.radioLabel small { font-size: .8rem; color: var(--text-3); display: block; margin-top: 2px; }
+.radioLabel:hover { border-color: var(--border-2); color: var(--text-1); }
+.radioOn { border-color: var(--accent); background: var(--accent-bg); color: var(--text-1); }
+
+.errorBox {
+  display: flex; align-items: center; gap: 7px;
+  padding: 10px 13px; background: var(--red-bg);
+  border: 1.5px solid var(--red-border); border-radius: var(--r);
+  color: var(--red); font-size: .875rem;
+}
+
+.submitBtn {
+  width: 100%; display: flex; align-items: center; justify-content: center; gap: 7px;
+  padding: 11px; background: var(--accent); color: #fff; border: none;
+  border-radius: var(--r); font-size: .9rem; font-weight: 600;
+  font-family: var(--font); cursor: pointer; transition: all var(--t);
+}
+.submitBtn:hover:not(:disabled) { background: var(--accent-h); transform: translateY(-1px); }
+.submitBtn:disabled { opacity: .6; cursor: not-allowed; }
+
+.privacy { font-size: .75rem; color: var(--text-3); text-align: center; line-height: 1.4; }
+
+.successWrap {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 12px; padding: 8px 0; text-align: center;
+}
+.successTitle { font-family: var(--font-display); font-size: 1.25rem; font-weight: 400; color: var(--text-1); letter-spacing: -.02em; }
+.successSub { font-size: .875rem; color: var(--text-2); line-height: 1.5; }
+.doneBtn {
+  padding: 9px 22px; background: var(--surface-2); border: 1.5px solid var(--border);
+  border-radius: var(--r); font-size: .875rem; font-weight: 500; color: var(--text-1);
+  cursor: pointer; transition: all var(--t); font-family: var(--font); margin-top: 4px;
+}
+.doneBtn:hover { border-color: var(--border-2); background: var(--surface-3); }

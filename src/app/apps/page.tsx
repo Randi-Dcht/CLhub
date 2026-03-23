@@ -8,9 +8,10 @@ import styles from './apps.module.css'
 import {
   BookOpen, RefreshCw, Search, Package,
   ChevronRight, Clock, Tag, ArrowUpRight,
-  Loader2, AlertCircle, ShieldCheck
+  Loader2, AlertCircle, ShieldCheck, Rss
 } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
+import { SubscribeButton } from '@/components/SubscribeModal'
 import { fr } from 'date-fns/locale'
 
 function relDate(d: string) {
@@ -69,6 +70,11 @@ export default function AppsPage() {
             <span>{siteName}</span>
           </Link>
           <div className={styles.navRight}>
+            <a href="/rss.xml" target="_blank" rel="noopener noreferrer"
+              className={styles.rssLink} title="Flux RSS global">
+              <Rss size={15} />
+            </a>
+            <SubscribeButton />
             <button className={styles.iconBtn} title="Rafraîchir"
               onClick={() => load(true)} disabled={refreshing}>
               <RefreshCw size={15} className={refreshing ? 'spin' : ''} />

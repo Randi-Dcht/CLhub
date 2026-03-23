@@ -60,3 +60,19 @@ export interface ChangelogFile {
 export interface SessionData {
   isAdmin: boolean
 }
+
+// ── Subscriptions ──────────────────────────────────────────────
+
+export interface Subscriber {
+  id: string          // uuid-like random token
+  email: string
+  // null = subscribed to ALL apps; string[] = specific slugs
+  slugs: string[] | null
+  unsubscribeToken: string
+  confirmedAt: string | null
+  createdAt: string
+}
+
+export interface SubscribersStore {
+  subscribers: Subscriber[]
+}

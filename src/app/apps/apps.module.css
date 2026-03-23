@@ -183,3 +183,15 @@
   border-color: rgba(124,58,237,.3);
   color: var(--purple); background: var(--purple-bg);
 }
+
+/* RSS link */
+.rssLink {
+  width: 34px; height: 34px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1.5px solid var(--border); background: var(--surface);
+  border-radius: var(--r); color: var(--text-2); text-decoration: none;
+  transition: all var(--t);
+}
+.rssLink:hover {
+  border-color: rgba(234,88,12,.3); color: #ea580c; background: #fff7ed;
+}

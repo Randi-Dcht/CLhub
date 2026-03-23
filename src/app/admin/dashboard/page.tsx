@@ -8,9 +8,9 @@ import {
   Loader2, AlertCircle, CheckCircle2, ShieldCheck, LogOut,
   Save, Trash2, RefreshCw, ExternalLink, Calendar, Tag,
   ChevronRight, ArrowLeft, Settings, Database, Type, KeyRound,
-  Pencil
+  Pencil, Bell, Send, Users, Mail, Rss, X
 } from 'lucide-react'
-import { RepositoryConfig } from '@/types'
+import { RepositoryConfig, Subscriber } from '@/types'
 
 function GitLabIcon({ size = 18 }: { size?: number }) {
   return (
@@ -20,7 +20,7 @@ function GitLabIcon({ size = 18 }: { size?: number }) {
   )
 }
 
-type Tab = 'repo' | 'settings'
+type Tab = 'repo' | 'settings' | 'subscribers'
 type RepoStep = 'form' | 'confirm' | 'saved'
 
 interface SavedConfig {
@@ -31,7 +31,7 @@ interface SavedConfig {
 interface RepoInfo { name: string; description: string; default_branch: string }
 
 /* ════════════════════════════════════════════════════════════════ */
-/*  SUB-COMPONENT: Repo Tab                                         */
+/*  REPO TAB                                                        */
 /* ════════════════════════════════════════════════════════════════ */
 function RepoTab({ saved, onSaved }: { saved: SavedConfig; onSaved: () => void }) {
   const [provider, setProvider] = useState<'github' | 'gitlab'>(saved.repo?.provider ?? 'github')
@@ -48,8 +48,7 @@ function RepoTab({ saved, onSaved }: { saved: SavedConfig; onSaved: () => void }
   const [successMsg, setSuccessMsg] = useState('')
 
   async function handleValidate(e: React.FormEvent) {
-    e.preventDefault()
-    setError(''); setSuccessMsg('')
+    e.preventDefault(); setError(''); setSuccessMsg('')
     if (!repoUrl.trim()) { setError("L'URL du dépôt est requise"); return }
     if (isPrivate && !token.trim()) { setError('Un token est requis pour les dépôts privés'); return }
     setLoading(true)
@@ -99,9 +98,7 @@ function RepoTab({ saved, onSaved }: { saved: SavedConfig; onSaved: () => void }
 
   return (
     <div className={styles.tabContent}>
-      {/* Status sidebar */}
       <div className={styles.formCol}>
-        {/* current banner */}
         {saved.repo && step !== 'saved' && (
           <div className={styles.currentBanner}>
             <div className={styles.currentBannerLeft}>
@@ -122,18 +119,17 @@ function RepoTab({ saved, onSaved }: { saved: SavedConfig; onSaved: () => void }
           <div className={styles.successBox}><CheckCircle2 size={15} /><span>{successMsg}</span></div>
         )}
 
-        {/* FORM / SAVED */}
         {(step === 'form' || step === 'saved') && (
           <div className={styles.card}>
             <div className={styles.cardHead}>
               <h2 className={styles.cardTitle}>{saved.repo ? 'Modifier le dépôt' : 'Connecter un dépôt'}</h2>
-              <p className={styles.cardSub}>Fichiers <code>*changelog*.yml</code> lus depuis la racine du dépôt</p>
+              <p className={styles.cardSub}>Fichiers <code>*changelog*.yml</code> lus depuis la racine</p>
             </div>
             <form onSubmit={handleValidate} className={styles.cardBody}>
               <div className={styles.field}>
                 <span className={styles.fieldLabel}>Plateforme</span>
                 <div className={styles.toggle2}>
-                  {(['github','gitlab'] as const).map(p => (
+                  {(['github', 'gitlab'] as const).map(p => (
                     <button key={p} type="button"
                       className={`${styles.tBtn} ${provider === p ? styles.tBtnOn : ''}`}
                       onClick={() => setProvider(p)}>
@@ -143,7 +139,6 @@ function RepoTab({ saved, onSaved }: { saved: SavedConfig; onSaved: () => void }
                   ))}
                 </div>
               </div>
-
               <div className={styles.field}>
                 <span className={styles.fieldLabel}>Visibilité</span>
                 <div className={styles.segmented}>
@@ -151,14 +146,12 @@ function RepoTab({ saved, onSaved }: { saved: SavedConfig; onSaved: () => void }
                   <button type="button" className={`${styles.segBtn} ${isPrivate ? styles.segBtnOn : ''}`} onClick={() => setIsPrivate(true)}><Lock size={13} /><span>Privé</span></button>
                 </div>
               </div>
-
               <div className={styles.field}>
                 <label className={styles.fieldLabel} htmlFor="rurl">URL du dépôt</label>
                 <input id="rurl" type="url" required className={styles.input}
                   placeholder={`https://${provider}.com/utilisateur/projet`}
                   value={repoUrl} onChange={e => setRepoUrl(e.target.value)} />
               </div>
-
               {isPrivate && (
                 <div className={styles.privateBlock}>
                   <div className={styles.field}>
@@ -181,7 +174,6 @@ function RepoTab({ saved, onSaved }: { saved: SavedConfig; onSaved: () => void }
                   </div>
                 </div>
               )}
-
               <div className={styles.field}>
                 <label className={styles.fieldLabel} htmlFor="rbranch">Branche <span className={styles.opt}>(défaut : main)</span></label>
                 <div className={styles.inputRow}>
@@ -190,9 +182,7 @@ function RepoTab({ saved, onSaved }: { saved: SavedConfig; onSaved: () => void }
                     placeholder="main" value={branch} onChange={e => setBranch(e.target.value)} />
                 </div>
               </div>
-
               {error && <div className={styles.errorBox}><AlertCircle size={14} /><span>{error}</span></div>}
-
               <div className={styles.formActions}>
                 {saved.repo && (
                   <button type="button" className={styles.deleteBtn} onClick={handleDelete} disabled={loading}>
@@ -207,7 +197,6 @@ function RepoTab({ saved, onSaved }: { saved: SavedConfig; onSaved: () => void }
           </div>
         )}
 
-        {/* CONFIRM */}
         {step === 'confirm' && repoInfo && (
           <div className={`${styles.card} fade-up`}>
             <div className={styles.cardHead}>
@@ -219,14 +208,14 @@ function RepoTab({ saved, onSaved }: { saved: SavedConfig; onSaved: () => void }
               <dl className={styles.infoGrid}>
                 <dt>Projet</dt><dd><strong>{repoInfo.name}</strong></dd>
                 {repoInfo.description && <><dt>Description</dt><dd>{repoInfo.description}</dd></>}
-                <dt>Branche</dt><dd><GitBranch size={12} style={{verticalAlign:'middle',marginRight:4}}/>{branch||repoInfo.default_branch}</dd>
-                <dt>Accès</dt><dd>{isPrivate ? <><Lock size={12} style={{verticalAlign:'middle',marginRight:4}}/>Privé</> : <><Globe size={12} style={{verticalAlign:'middle',marginRight:4}}/>Public</>}</dd>
+                <dt>Branche</dt><dd><GitBranch size={12} style={{ verticalAlign: 'middle', marginRight: 4 }} />{branch || repoInfo.default_branch}</dd>
+                <dt>Accès</dt><dd>{isPrivate ? <><Lock size={12} style={{ verticalAlign: 'middle', marginRight: 4 }} />Privé</> : <><Globe size={12} style={{ verticalAlign: 'middle', marginRight: 4 }} />Public</>}</dd>
               </dl>
-              {error && <div className={styles.errorBox}><AlertCircle size={14}/><span>{error}</span></div>}
+              {error && <div className={styles.errorBox}><AlertCircle size={14} /><span>{error}</span></div>}
               <div className={styles.formActions}>
-                <button className={styles.ghostBtn} onClick={() => { setStep('form'); setError('') }}><ArrowLeft size={14}/><span>Modifier</span></button>
+                <button className={styles.ghostBtn} onClick={() => { setStep('form'); setError('') }}><ArrowLeft size={14} /><span>Modifier</span></button>
                 <button className={styles.saveBtn} onClick={handleSave} disabled={loading}>
-                  {loading ? <><Loader2 size={15} className="spin"/><span>Sauvegarde…</span></> : <><Save size={15}/><span>Sauvegarder</span></>}
+                  {loading ? <><Loader2 size={15} className="spin" /><span>Sauvegarde…</span></> : <><Save size={15} /><span>Sauvegarder</span></>}
                 </button>
               </div>
             </div>
@@ -234,7 +223,6 @@ function RepoTab({ saved, onSaved }: { saved: SavedConfig; onSaved: () => void }
         )}
       </div>
 
-      {/* Right: status panel */}
       <aside className={styles.sideCol}>
         <div className={styles.statusCard}>
           <div className={styles.statusCardHead}><span className={styles.statusCardTitle}>État de la connexion</span></div>
@@ -242,17 +230,17 @@ function RepoTab({ saved, onSaved }: { saved: SavedConfig; onSaved: () => void }
             <div className={styles.statusBody}>
               <div className={styles.statusRow}><span className={styles.statusDot} data-active="true" /><span className={styles.statusLabel}>Dépôt connecté</span></div>
               <div className={styles.statusInfo}>
-                <div className={styles.siRow}><span className={styles.siKey}>URL</span><a href={saved.repo.repoUrl} target="_blank" rel="noopener noreferrer" className={`${styles.siVal} ${styles.siLink}`}>{saved.repo.repoUrl.replace('https://','')}<ExternalLink size={10}/></a></div>
-                <div className={styles.siRow}><span className={styles.siKey}>Plateforme</span><span className={styles.siVal}>{saved.repo.provider === 'github' ? <><Github size={12}/>GitHub</> : <><GitLabIcon size={12}/>GitLab</>}</span></div>
-                <div className={styles.siRow}><span className={styles.siKey}>Branche</span><span className={styles.siVal}><GitBranch size={12}/>{saved.repo.branch ?? 'main'}</span></div>
-                <div className={styles.siRow}><span className={styles.siKey}>Accès</span><span className={styles.siVal}>{saved.repo.isPrivate ? <><Lock size={12}/>Privé</> : <><Globe size={12}/>Public</>}</span></div>
-                {saved.updatedAt && <div className={styles.siRow}><span className={styles.siKey}>Mis à jour</span><span className={styles.siVal}><Calendar size={11}/>{new Date(saved.updatedAt).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}</span></div>}
+                <div className={styles.siRow}><span className={styles.siKey}>URL</span><a href={saved.repo.repoUrl} target="_blank" rel="noopener noreferrer" className={`${styles.siVal} ${styles.siLink}`}>{saved.repo.repoUrl.replace('https://', '')}<ExternalLink size={10} /></a></div>
+                <div className={styles.siRow}><span className={styles.siKey}>Plateforme</span><span className={styles.siVal}>{saved.repo.provider === 'github' ? <><Github size={12} />GitHub</> : <><GitLabIcon size={12} />GitLab</>}</span></div>
+                <div className={styles.siRow}><span className={styles.siKey}>Branche</span><span className={styles.siVal}><GitBranch size={12} />{saved.repo.branch ?? 'main'}</span></div>
+                <div className={styles.siRow}><span className={styles.siKey}>Accès</span><span className={styles.siVal}>{saved.repo.isPrivate ? <><Lock size={12} />Privé</> : <><Globe size={12} />Public</>}</span></div>
+                {saved.updatedAt && <div className={styles.siRow}><span className={styles.siKey}>Mis à jour</span><span className={styles.siVal}><Calendar size={11} />{new Date(saved.updatedAt).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span></div>}
               </div>
-              <a href="/apps" target="_blank" rel="noopener noreferrer" className={styles.viewPublicBtn}><ExternalLink size={13}/><span>Vue publique</span></a>
+              <a href="/apps" target="_blank" rel="noopener noreferrer" className={styles.viewPublicBtn}><ExternalLink size={13} /><span>Vue publique</span></a>
             </div>
           ) : (
             <div className={styles.statusBody}>
-              <div className={styles.statusRow}><span className={styles.statusDot} data-active="false"/><span className={styles.statusLabel}>Aucun dépôt configuré</span></div>
+              <div className={styles.statusRow}><span className={styles.statusDot} data-active="false" /><span className={styles.statusLabel}>Aucun dépôt configuré</span></div>
               <p className={styles.statusEmpty}>Configurez un dépôt pour que les changelogs soient accessibles publiquement.</p>
             </div>
           )}
@@ -263,16 +251,13 @@ function RepoTab({ saved, onSaved }: { saved: SavedConfig; onSaved: () => void }
 }
 
 /* ════════════════════════════════════════════════════════════════ */
-/*  SUB-COMPONENT: Settings Tab                                     */
+/*  SETTINGS TAB                                                    */
 /* ════════════════════════════════════════════════════════════════ */
 function SettingsTab({ siteName: initialSiteName, onSiteNameChange }: { siteName: string; onSiteNameChange: (name: string) => void }) {
-  // Site name
   const [siteName, setSiteName] = useState(initialSiteName)
   const [siteNameLoading, setSiteNameLoading] = useState(false)
   const [siteNameError, setSiteNameError] = useState('')
   const [siteNameSuccess, setSiteNameSuccess] = useState('')
-
-  // Password
   const [currentPwd, setCurrentPwd] = useState('')
   const [newPwd, setNewPwd] = useState('')
   const [confirmPwd, setConfirmPwd] = useState('')
@@ -286,9 +271,7 @@ function SettingsTab({ siteName: initialSiteName, onSiteNameChange }: { siteName
   useEffect(() => { setSiteName(initialSiteName) }, [initialSiteName])
 
   async function handleSiteName(e: React.FormEvent) {
-    e.preventDefault()
-    setSiteNameError(''); setSiteNameSuccess('')
-    setSiteNameLoading(true)
+    e.preventDefault(); setSiteNameError(''); setSiteNameSuccess(''); setSiteNameLoading(true)
     try {
       const res = await fetch('/api/admin/settings', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -302,9 +285,7 @@ function SettingsTab({ siteName: initialSiteName, onSiteNameChange }: { siteName
   }
 
   async function handlePassword(e: React.FormEvent) {
-    e.preventDefault()
-    setPwdError(''); setPwdSuccess('')
-    setPwdLoading(true)
+    e.preventDefault(); setPwdError(''); setPwdSuccess(''); setPwdLoading(true)
     try {
       const res = await fetch('/api/admin/settings', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -323,13 +304,12 @@ function SettingsTab({ siteName: initialSiteName, onSiteNameChange }: { siteName
 
   return (
     <div className={styles.settingsGrid}>
-      {/* ── Site name ── */}
       <div className={styles.card}>
         <div className={styles.cardHead}>
           <div className={styles.cardHeadIcon}><Type size={18} strokeWidth={1.5} /></div>
           <div>
             <h2 className={styles.cardTitle}>Nom du site</h2>
-            <p className={styles.cardSub}>Affiché dans la barre de navigation publique et l&apos;onglet du navigateur</p>
+            <p className={styles.cardSub}>Affiché dans la navigation et l&apos;onglet du navigateur</p>
           </div>
         </div>
         <form onSubmit={handleSiteName} className={styles.cardBody}>
@@ -339,94 +319,279 @@ function SettingsTab({ siteName: initialSiteName, onSiteNameChange }: { siteName
               <span className={styles.inputIcon}><Pencil size={13} /></span>
               <input id="siteName" type="text" required maxLength={50}
                 className={`${styles.input} ${styles.inputIndented}`}
-                placeholder="ChangeLog Hub"
-                value={siteName} onChange={e => setSiteName(e.target.value)} />
+                placeholder="ChangeLog Hub" value={siteName} onChange={e => setSiteName(e.target.value)} />
             </div>
             <p className={styles.hint}>Maximum 50 caractères</p>
           </div>
-          {siteNameError && <div className={styles.errorBox}><AlertCircle size={14}/><span>{siteNameError}</span></div>}
-          {siteNameSuccess && <div className={styles.successBox}><CheckCircle2 size={14}/><span>{siteNameSuccess}</span></div>}
+          {siteNameError && <div className={styles.errorBox}><AlertCircle size={14} /><span>{siteNameError}</span></div>}
+          {siteNameSuccess && <div className={styles.successBox}><CheckCircle2 size={14} /><span>{siteNameSuccess}</span></div>}
           <button type="submit" className={styles.primaryBtn} disabled={siteNameLoading}>
-            {siteNameLoading ? <><Loader2 size={15} className="spin"/><span>Sauvegarde…</span></> : <><Save size={15}/><span>Enregistrer le nom</span></>}
+            {siteNameLoading ? <><Loader2 size={15} className="spin" /><span>Sauvegarde…</span></> : <><Save size={15} /><span>Enregistrer le nom</span></>}
           </button>
         </form>
       </div>
 
-      {/* ── Password ── */}
       <div className={styles.card}>
         <div className={styles.cardHead}>
           <div className={styles.cardHeadIcon}><KeyRound size={18} strokeWidth={1.5} /></div>
           <div>
             <h2 className={styles.cardTitle}>Mot de passe administrateur</h2>
-            <p className={styles.cardSub}>Modifiez le mot de passe de connexion à ce tableau de bord</p>
+            <p className={styles.cardSub}>Modifiez le mot de passe de connexion</p>
           </div>
         </div>
         <form onSubmit={handlePassword} className={styles.cardBody}>
           <div className={styles.field}>
             <label className={styles.fieldLabel} htmlFor="cpwd">Mot de passe actuel</label>
             <div className={styles.inputRow}>
-              <input id="cpwd" type={showCurrent ? 'text' : 'password'} required
-                autoComplete="current-password"
-                className={styles.input}
-                placeholder="••••••••"
+              <input id="cpwd" type={showCurrent ? 'text' : 'password'} required autoComplete="current-password"
+                className={styles.input} placeholder="••••••••"
                 value={currentPwd} onChange={e => setCurrentPwd(e.target.value)} />
               <button type="button" className={styles.eyeBtn} onClick={() => setShowCurrent(v => !v)}>
-                {showCurrent ? <EyeOff size={14}/> : <Eye size={14}/>}
+                {showCurrent ? <EyeOff size={14} /> : <Eye size={14} />}
               </button>
             </div>
           </div>
-
           <div className={styles.field}>
             <label className={styles.fieldLabel} htmlFor="npwd">Nouveau mot de passe</label>
             <div className={styles.inputRow}>
-              <input id="npwd" type={showNew ? 'text' : 'password'} required
-                autoComplete="new-password" minLength={6}
-                className={styles.input}
-                placeholder="Min. 6 caractères"
+              <input id="npwd" type={showNew ? 'text' : 'password'} required autoComplete="new-password" minLength={6}
+                className={styles.input} placeholder="Min. 6 caractères"
                 value={newPwd} onChange={e => setNewPwd(e.target.value)} />
               <button type="button" className={styles.eyeBtn} onClick={() => setShowNew(v => !v)}>
-                {showNew ? <EyeOff size={14}/> : <Eye size={14}/>}
+                {showNew ? <EyeOff size={14} /> : <Eye size={14} />}
               </button>
             </div>
             {newPwd && (
               <div className={styles.pwdStrength}>
                 <div className={styles.pwdBars}>
-                  {[1,2,3,4].map(n => (
+                  {[1, 2, 3, 4].map(n => (
                     <div key={n} className={`${styles.pwdBar} ${n <= pwdStrength ? styles[`pwdBar_${pwdColors[pwdStrength]}`] : ''}`} />
                   ))}
                 </div>
-                <span className={`${styles.pwdLabel} ${styles[`pwdLabel_${pwdColors[pwdStrength]}`]}`}>
-                  {pwdLabels[pwdStrength]}
-                </span>
+                <span className={`${styles.pwdLabel} ${styles[`pwdLabel_${pwdColors[pwdStrength]}`]}`}>{pwdLabels[pwdStrength]}</span>
               </div>
             )}
           </div>
-
           <div className={styles.field}>
-            <label className={styles.fieldLabel} htmlFor="cpwd2">Confirmer le nouveau mot de passe</label>
+            <label className={styles.fieldLabel} htmlFor="cpwd2">Confirmer</label>
             <div className={styles.inputRow}>
-              <input id="cpwd2" type={showConfirm ? 'text' : 'password'} required
-                autoComplete="new-password"
+              <input id="cpwd2" type={showConfirm ? 'text' : 'password'} required autoComplete="new-password"
                 className={`${styles.input} ${confirmPwd && newPwd !== confirmPwd ? styles.inputError : ''}`}
-                placeholder="••••••••"
-                value={confirmPwd} onChange={e => setConfirmPwd(e.target.value)} />
+                placeholder="••••••••" value={confirmPwd} onChange={e => setConfirmPwd(e.target.value)} />
               <button type="button" className={styles.eyeBtn} onClick={() => setShowConfirm(v => !v)}>
-                {showConfirm ? <EyeOff size={14}/> : <Eye size={14}/>}
+                {showConfirm ? <EyeOff size={14} /> : <Eye size={14} />}
               </button>
             </div>
-            {confirmPwd && newPwd !== confirmPwd && (
-              <p className={styles.hintError}>Les mots de passe ne correspondent pas</p>
-            )}
+            {confirmPwd && newPwd !== confirmPwd && <p className={styles.hintError}>Les mots de passe ne correspondent pas</p>}
           </div>
-
-          {pwdError && <div className={styles.errorBox}><AlertCircle size={14}/><span>{pwdError}</span></div>}
-          {pwdSuccess && <div className={styles.successBox}><CheckCircle2 size={14}/><span>{pwdSuccess}</span></div>}
-
+          {pwdError && <div className={styles.errorBox}><AlertCircle size={14} /><span>{pwdError}</span></div>}
+          {pwdSuccess && <div className={styles.successBox}><CheckCircle2 size={14} /><span>{pwdSuccess}</span></div>}
           <button type="submit" className={styles.primaryBtn} disabled={pwdLoading}>
-            {pwdLoading ? <><Loader2 size={15} className="spin"/><span>Modification…</span></> : <><KeyRound size={15}/><span>Modifier le mot de passe</span></>}
+            {pwdLoading ? <><Loader2 size={15} className="spin" /><span>Modification…</span></> : <><KeyRound size={15} /><span>Modifier le mot de passe</span></>}
           </button>
         </form>
       </div>
+    </div>
+  )
+}
+
+/* ════════════════════════════════════════════════════════════════ */
+/*  SUBSCRIBERS TAB                                                 */
+/* ════════════════════════════════════════════════════════════════ */
+interface AppInfo { name: string; slug: string }
+
+function SubscribersTab() {
+  const [subscribers, setSubscribers] = useState<Subscriber[]>([])
+  const [apps, setApps] = useState<AppInfo[]>([])
+  const [emailEnabled, setEmailEnabled] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [sendingSlug, setSendingSlug] = useState<string | null>(null)
+  const [sendResult, setSendResult] = useState<{ slug: string; sent: number; failed: number } | null>(null)
+
+  const load = useCallback(async () => {
+    setLoading(true); setError('')
+    try {
+      const [subRes, appRes] = await Promise.all([
+        fetch('/api/admin/subscribers'),
+        fetch('/api/changelogs'),
+      ])
+      const subData = await subRes.json()
+      const appData = await appRes.json()
+      if (!subRes.ok) throw new Error(subData.error)
+      setSubscribers(subData.subscribers)
+      setEmailEnabled(subData.emailEnabled)
+      if (appData.changelogs) setApps(appData.changelogs.map((c: AppInfo) => ({ name: c.name, slug: c.slug })))
+    } catch (e) { setError(e instanceof Error ? e.message : 'Erreur') } finally { setLoading(false) }
+  }, [])
+
+  useEffect(() => { load() }, [load])
+
+  async function handleDelete(id: string) {
+    if (!confirm('Supprimer cet abonné ?')) return
+    await fetch('/api/admin/subscribers', {
+      method: 'DELETE', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    })
+    setSubscribers(s => s.filter(x => x.id !== id))
+  }
+
+  async function handleSendNotification(slug: string) {
+    if (!confirm(`Envoyer une notification pour "${apps.find(a => a.slug === slug)?.name}" à tous les abonnés concernés ?`)) return
+    setSendingSlug(slug); setSendResult(null)
+    try {
+      const res = await fetch('/api/admin/subscribers', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug }),
+      })
+      const data = await res.json()
+      if (!res.ok) { setError(data.error); return }
+      setSendResult({ slug, sent: data.sent, failed: data.failed })
+    } catch { setError('Erreur réseau') } finally { setSendingSlug(null) }
+  }
+
+  if (loading) return <div className={styles.tabLoading}><Loader2 size={22} className="spin" style={{ color: 'var(--accent)' }} /></div>
+
+  return (
+    <div className={styles.subscribersLayout}>
+      {/* Left: subscriber list */}
+      <div className={styles.formCol}>
+        {/* Email status banner */}
+        <div className={emailEnabled ? styles.smtpBannerOk : styles.smtpBannerWarn}>
+          <div className={styles.smtpBannerLeft}>
+            <Mail size={15} />
+            <div>
+              <strong>{emailEnabled ? 'SMTP configuré' : 'SMTP non configuré'}</strong>
+              <p>{emailEnabled ? 'Les notifications email sont actives.' : 'Ajoutez SMTP_HOST, SMTP_USER, SMTP_PASS dans .env.local pour activer les emails.'}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* RSS links */}
+        <div className={styles.rssInfoBox}>
+          <Rss size={15} style={{ color: '#ea580c', flexShrink: 0 }} />
+          <div>
+            <strong>Flux RSS disponibles</strong>
+            <p>
+              <a href="/rss.xml" target="_blank" className={styles.rssLink}>/rss.xml</a>
+              {' '}(global) · flux par app sur{' '}
+              <code>/apps/[slug]/rss.xml</code>
+            </p>
+          </div>
+        </div>
+
+        {/* Send notification panel */}
+        {emailEnabled && apps.length > 0 && (
+          <div className={styles.card}>
+            <div className={styles.cardHead}>
+              <div className={styles.cardHeadIcon}><Send size={16} strokeWidth={1.5} /></div>
+              <div>
+                <h2 className={styles.cardTitle}>Envoyer une notification</h2>
+                <p className={styles.cardSub}>Notifie les abonnés de la dernière version d&apos;une app</p>
+              </div>
+            </div>
+            <div className={styles.cardBody}>
+              {sendResult && (
+                <div className={styles.successBox}>
+                  <CheckCircle2 size={14} />
+                  <span>Envoyé : {sendResult.sent} email{sendResult.sent !== 1 ? 's' : ''}{sendResult.failed > 0 ? `, ${sendResult.failed} échec(s)` : ''}</span>
+                  <button className={styles.dismissBtn} onClick={() => setSendResult(null)}><X size={12} /></button>
+                </div>
+              )}
+              {error && <div className={styles.errorBox}><AlertCircle size={14} /><span>{error}</span></div>}
+              <div className={styles.appNotifList}>
+                {apps.map(app => {
+                  const count = subscribers.filter(s => s.slugs === null || s.slugs.includes(app.slug)).length
+                  return (
+                    <div key={app.slug} className={styles.appNotifRow}>
+                      <div className={styles.appNotifInfo}>
+                        <span className={styles.appNotifName}>{app.name}</span>
+                        <span className={styles.appNotifCount}>{count} abonné{count !== 1 ? 's' : ''}</span>
+                      </div>
+                      <button
+                        className={styles.sendBtn}
+                        disabled={sendingSlug === app.slug || count === 0}
+                        onClick={() => handleSendNotification(app.slug)}
+                      >
+                        {sendingSlug === app.slug
+                          ? <><Loader2 size={13} className="spin" /><span>Envoi…</span></>
+                          : <><Send size={13} /><span>Notifier</span></>}
+                      </button>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Subscriber list */}
+        <div className={styles.card}>
+          <div className={styles.cardHead}>
+            <div className={styles.cardHeadIcon}><Users size={16} strokeWidth={1.5} /></div>
+            <div>
+              <h2 className={styles.cardTitle}>Abonnés ({subscribers.length})</h2>
+              <p className={styles.cardSub}>Personnes inscrites aux notifications email</p>
+            </div>
+          </div>
+          <div className={styles.cardBody}>
+            {subscribers.length === 0 ? (
+              <div className={styles.emptySubscribers}>
+                <Bell size={28} strokeWidth={1} style={{ color: 'var(--text-3)' }} />
+                <p>Aucun abonné pour l&apos;instant.</p>
+                <span>Le bouton &quot;S&apos;abonner&quot; est visible sur les pages publiques.</span>
+              </div>
+            ) : (
+              <div className={styles.subscriberList}>
+                {subscribers.map(sub => (
+                  <div key={sub.id} className={styles.subscriberRow}>
+                    <div className={styles.subscriberInfo}>
+                      <span className={styles.subscriberEmail}>{sub.email}</span>
+                      <span className={styles.subscriberMeta}>
+                        {sub.slugs === null
+                          ? 'Toutes les apps'
+                          : `${sub.slugs.length} app${sub.slugs.length !== 1 ? 's' : ''} : ${sub.slugs.join(', ')}`}
+                        {' · '}
+                        {new Date(sub.createdAt).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}
+                      </span>
+                    </div>
+                    <button className={styles.deleteSubBtn} onClick={() => handleDelete(sub.id)} title="Supprimer">
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Right: help panel */}
+      <aside className={styles.sideCol}>
+        <div className={styles.statusCard}>
+          <div className={styles.statusCardHead}><span className={styles.statusCardTitle}>Configuration SMTP</span></div>
+          <div className={styles.statusBody}>
+            <div className={styles.smtpVarList}>
+              {[
+                { key: 'SMTP_HOST', ex: 'smtp.gmail.com' },
+                { key: 'SMTP_PORT', ex: '587' },
+                { key: 'SMTP_USER', ex: 'vous@gmail.com' },
+                { key: 'SMTP_PASS', ex: 'mot_de_passe_app' },
+                { key: 'SMTP_FROM', ex: 'MonApp <vous@gmail.com>' },
+                { key: 'APP_URL', ex: 'https://monsite.com' },
+              ].map(v => (
+                <div key={v.key} className={styles.smtpVar}>
+                  <code className={styles.smtpKey}>{v.key}</code>
+                  <span className={styles.smtpEx}>{v.ex}</span>
+                </div>
+              ))}
+            </div>
+            <p className={styles.smtpNote}>
+              Ajoutez ces variables dans <code>.env.local</code> ou dans les variables d&apos;environnement Docker.
+            </p>
+          </div>
+        </div>
+      </aside>
     </div>
   )
 }
@@ -457,8 +622,7 @@ export default function AdminDashboard() {
       const data: SavedConfig = await res.json()
       setSaved(data)
       setSiteName(data.settings?.siteName ?? 'ChangeLog Hub')
-    } catch {}
-    finally { setLoadingConfig(false) }
+    } catch { /* ignore */ } finally { setLoadingConfig(false) }
   }, [router])
 
   useEffect(() => { if (!authChecking) loadConfig() }, [authChecking, loadConfig])
@@ -472,34 +636,35 @@ export default function AdminDashboard() {
     <div className={styles.center}><Loader2 size={24} className="spin" style={{ color: 'var(--accent)' }} /></div>
   )
 
+  const TABS: { key: Tab; label: string; icon: React.ReactNode; dot?: boolean }[] = [
+    { key: 'repo', label: 'Dépôt', icon: <Database size={15} />, dot: !!saved?.repo },
+    { key: 'settings', label: 'Paramètres', icon: <Settings size={15} /> },
+    { key: 'subscribers', label: 'Abonnés', icon: <Bell size={15} /> },
+  ]
+
   return (
     <div className={styles.page}>
-      {/* Nav */}
       <nav className={styles.nav}>
         <div className={styles.navInner}>
           <div className={styles.navLeft}>
-            <div className={styles.navBrand}>
-              <BookOpen size={18} strokeWidth={1.5} />
-              <span>{siteName}</span>
-            </div>
-            <div className={styles.adminPill}><ShieldCheck size={12}/><span>Admin</span></div>
+            <div className={styles.navBrand}><BookOpen size={18} strokeWidth={1.5} /><span>{siteName}</span></div>
+            <div className={styles.adminPill}><ShieldCheck size={12} /><span>Admin</span></div>
           </div>
           <div className={styles.navRight}>
             <a href="/apps" className={styles.navLink} target="_blank" rel="noopener noreferrer">
-              <ExternalLink size={14}/><span>Vue publique</span>
+              <ExternalLink size={14} /><span>Vue publique</span>
             </a>
             <button className={styles.logoutBtn} onClick={handleLogout}>
-              <LogOut size={14}/><span>Déconnexion</span>
+              <LogOut size={14} /><span>Déconnexion</span>
             </button>
           </div>
         </div>
       </nav>
 
       <main className={styles.main}>
-        {/* Page header */}
         <div className={styles.pageHeader}>
           <div className={styles.pageHeaderLeft}>
-            <div className={styles.pageIconWrap}><Settings size={22} strokeWidth={1.5}/></div>
+            <div className={styles.pageIconWrap}><Settings size={22} strokeWidth={1.5} /></div>
             <div>
               <h1 className={styles.pageTitle}>Tableau de bord</h1>
               <p className={styles.pageSub}>Administration de {siteName}</p>
@@ -507,28 +672,20 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Tabs */}
         <div className={styles.tabs}>
-          <button
-            className={`${styles.tab} ${activeTab === 'repo' ? styles.tabActive : ''}`}
-            onClick={() => setActiveTab('repo')}>
-            <Database size={15}/><span>Dépôt</span>
-            {saved?.repo && <span className={styles.tabDot} />}
-          </button>
-          <button
-            className={`${styles.tab} ${activeTab === 'settings' ? styles.tabActive : ''}`}
-            onClick={() => setActiveTab('settings')}>
-            <Settings size={15}/><span>Paramètres</span>
-          </button>
+          {TABS.map(t => (
+            <button key={t.key}
+              className={`${styles.tab} ${activeTab === t.key ? styles.tabActive : ''}`}
+              onClick={() => setActiveTab(t.key)}>
+              {t.icon}<span>{t.label}</span>
+              {t.dot && <span className={styles.tabDot} />}
+            </button>
+          ))}
         </div>
 
-        {/* Tab content */}
-        {activeTab === 'repo' && saved && (
-          <RepoTab saved={saved} onSaved={loadConfig} />
-        )}
-        {activeTab === 'settings' && (
-          <SettingsTab siteName={siteName} onSiteNameChange={setSiteName} />
-        )}
+        {activeTab === 'repo' && saved && <RepoTab saved={saved} onSaved={loadConfig} />}
+        {activeTab === 'settings' && <SettingsTab siteName={siteName} onSiteNameChange={setSiteName} />}
+        {activeTab === 'subscribers' && <SubscribersTab />}
       </main>
     </div>
   )
