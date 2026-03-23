@@ -3,6 +3,9 @@ import { RepositoryConfig } from '@/types'
 import { validateGitHub } from '@/lib/github'
 import { validateGitLab } from '@/lib/gitlab'
 
+// Force dynamic — uses cookies/filesystem at runtime
+export const dynamic = 'force-dynamic'
+
 export async function POST(req: NextRequest) {
   try {
     const config = (await req.json()) as RepositoryConfig

@@ -3,7 +3,7 @@ import './globals.css'
 
 export const metadata: Metadata = {
   title: 'ChangeLog Hub',
-  description: 'Visualisez les changelogs de vos applications depuis GitHub ou GitLab',
+  description: 'Visualisez les changelogs de vos applications',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

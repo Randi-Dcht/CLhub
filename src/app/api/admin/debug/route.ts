@@ -7,6 +7,9 @@ import { fetchGitLabChangelogs } from '@/lib/gitlab'
 import path from 'path'
 import fs from 'fs'
 
+// Force dynamic — uses cookies/filesystem at runtime
+export const dynamic = 'force-dynamic'
+
 export async function GET(req: NextRequest) {
   const res = NextResponse.json({})
   const session = await getIronSession<SessionData>(req, res, sessionOptions)

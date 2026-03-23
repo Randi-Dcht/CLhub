@@ -6,6 +6,9 @@ import { RepositoryConfig } from '@/types'
 import { validateGitHub } from '@/lib/github'
 import { validateGitLab } from '@/lib/gitlab'
 
+// Force dynamic — uses cookies/filesystem at runtime
+export const dynamic = 'force-dynamic'
+
 async function isAdmin(req: NextRequest, res: NextResponse): Promise<boolean> {
   const session = await getIronSession<SessionData>(req, res, sessionOptions)
   return session.isAdmin === true

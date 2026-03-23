@@ -5,6 +5,9 @@ import { readAppConfig, writeSettings } from '@/lib/store'
 import fs from 'fs'
 import path from 'path'
 
+// Force dynamic — uses cookies/filesystem at runtime
+export const dynamic = 'force-dynamic'
+
 async function isAdmin(req: NextRequest, res: NextResponse): Promise<boolean> {
   const session = await getIronSession<SessionData>(req, res, sessionOptions)
   return session.isAdmin === true
