@@ -1,4 +1,5 @@
 'use client'
+import { Suspense } from 'react'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
@@ -6,7 +7,7 @@ import { CheckCircle2, XCircle, Loader2, BookOpen } from 'lucide-react'
 import { useSiteName } from '@/hooks/useSiteName'
 import styles from './unsubscribe.module.css'
 
-export default function UnsubscribePage() {
+function UnsubscribeContent() {
   const params = useSearchParams()
   const token = params.get('token')
   const siteName = useSiteName()
@@ -18,7 +19,7 @@ export default function UnsubscribePage() {
     fetch(`/api/unsubscribe?token=${token}`)
       .then(r => r.json())
       .then(d => {
-        if (d.ok) { setStatus('ok') }
+        if (d.ok) setStatus('ok')
         else { setStatus('error'); setMessage(d.error ?? 'Erreur inconnue') }
       })
       .catch(() => { setStatus('error'); setMessage('Erreur réseau') })
@@ -57,5 +58,22 @@ export default function UnsubscribePage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function UnsubscribePage() {
+  return (
+    <Suspense fallback={
+      <div className={styles.page}>
+        <div className={styles.card}>
+          <div className={styles.body}>
+            <Loader2 size={32} className="spin" style={{ color: 'var(--accent)' }} />
+            <p>Chargement…</p>
+          </div>
+        </div>
+      </div>
+    }>
+      <UnsubscribeContent />
+    </Suspense>
   )
 }
